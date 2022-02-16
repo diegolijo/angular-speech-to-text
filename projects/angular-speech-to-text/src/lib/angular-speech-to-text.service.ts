@@ -20,7 +20,7 @@ export class SpeechToText {
   /**
    * flags de los eventos
    */
-  public static readonly EVENT_PARTIAL: string = 'speech-partial-result';
+
   public static readonly EVENT_RESULT: string = 'speech-result';
   public static readonly EVENT_FINAL: string = 'speech-partial-result';
 
@@ -57,7 +57,6 @@ export class SpeechToText {
       cordova.plugins.SpeechToText.start((res: any) => {
         //TODO filtrar respuesta partial/result
         console.log('%c resultSpeech: ' + JSON.stringify(res), 'color:green');
-        this.resultSubject.next({ flag: SpeechToText.EVENT_PARTIAL, result: res });
         this.resultSubject.next({ flag: SpeechToText.EVENT_RESULT, result: res });
         resolve(true);
       }, (err: any) => {

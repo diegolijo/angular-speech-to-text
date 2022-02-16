@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { AngularSpeechToTextService } from './angular-speech-to-text.service';
+import { SpeechToText } from './angular-speech-to-text.service';
 
-describe('AngularSpeechToTextService', () => {
-  let service: AngularSpeechToTextService;
+describe('SpeechToText', () => {
+  let service: SpeechToText;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(AngularSpeechToTextService);
+    service = TestBed.inject(SpeechToText);
   });
 
   it('should be created', () => {

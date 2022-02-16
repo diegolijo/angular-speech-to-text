@@ -7,6 +7,7 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    
     "build:lib": "ng-packagr -p projects/angular-speech-to-text/ng-package.json"
   },
   "private": true,
