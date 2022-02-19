@@ -16,12 +16,6 @@ export interface ISubscriber {
 
 @Injectable()
 export class SpeechToText {
-  /**
-   * flags de los eventos
-   */
-
-  public static readonly EVENT_RESULT: string = 'speech-result';
-  public static readonly EVENT_PARTIAL: string = 'speech-partial-result';
 
   private resultSubject = new Subject<IResultEvent>();
   private subscribes: any = {};
@@ -56,8 +50,6 @@ export class SpeechToText {
         reject(msg);
       }
       cordova.plugins.SpeechToText.start((res: any) => {
-        //TODO filtrar respuesta partial/result
-        console.log('%c resultSpeech: ' + JSON.stringify(res), res.parcial? 'color:orange':'color:green');
         this.resultSubject.next(res);
         resolve(true);
       }, (err: any) => {
@@ -74,7 +66,38 @@ export class SpeechToText {
       }
       if (this.platform.is('cordova')) {
         cordova.plugins.SpeechToText.stop((value: any) => {
-          console.log('%c stopSpeech: ' + JSON.stringify(value), 'color:green');
+          resolve(value);
+        }, (err: any) => {
+          reject(err);
+        });
+      }
+    });
+  }
+
+  public isPlaying(): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      if (!this.platform.is('cordova')) {
+        const msg = 'Speech-to-text plugin not available';
+        reject(msg);
+      }
+      if (this.platform.is('cordova')) {
+        cordova.plugins.SpeechToText.isPlaying((value: any) => {
+          resolve(value);
+        }, (err: any) => {
+          reject(err);
+        });
+      }
+    });
+  }
+
+  public isEnable(): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      if (!this.platform.is('cordova')) {
+        const msg = 'Speech-to-text plugin not available';
+        reject(msg);
+      }
+      if (this.platform.is('cordova')) {
+        cordova.plugins.SpeechToText.isEnable((value: any) => {
           resolve(value);
         }, (err: any) => {
           reject(err);
