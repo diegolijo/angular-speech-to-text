@@ -6,7 +6,6 @@ import { Subject } from 'rxjs';
 
 declare const cordova: any;
 export interface IResultEvent {
-  flag: string;
   result: any;
 }
 
@@ -22,7 +21,7 @@ export class SpeechToText {
    */
 
   public static readonly EVENT_RESULT: string = 'speech-result';
-  public static readonly EVENT_FINAL: string = 'speech-partial-result';
+  public static readonly EVENT_PARTIAL: string = 'speech-partial-result';
 
   private resultSubject = new Subject<IResultEvent>();
   private subscribes: any = {};
@@ -32,18 +31,20 @@ export class SpeechToText {
     private ngZone: NgZone
   ) { }
 
-  public enableSpeech(idioma: string): Promise<any> {
+  // TODO implementar otros idiomas
+  public enableSpeech(idioma?: string): Promise<any> {
     return new Promise((resolve: any, reject: any) => {
       if (!this.platform.is('cordova')) {
         const msg = 'Speech-to-text plugin not available';
         reject(msg);
       }
       if (this.platform.is('cordova')) {
-        cordova.plugins.SpeechToText.enable(idioma, (value: any) => {
+        cordova.plugins.SpeechToText.enable((value: any) => {
           resolve(value);
         }, (err: any) => {
           reject(err);
-        });
+        },
+          idioma);
       }
     });
   }
@@ -56,8 +57,8 @@ export class SpeechToText {
       }
       cordova.plugins.SpeechToText.start((res: any) => {
         //TODO filtrar respuesta partial/result
-        console.log('%c resultSpeech: ' + JSON.stringify(res), 'color:green');
-        this.resultSubject.next({ flag: SpeechToText.EVENT_RESULT, result: res });
+        console.log('%c resultSpeech: ' + JSON.stringify(res), res.parcial? 'color:orange':'color:green');
+        this.resultSubject.next(res);
         resolve(true);
       }, (err: any) => {
         reject(err);
