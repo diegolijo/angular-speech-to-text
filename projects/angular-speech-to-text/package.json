@@ -1,7 +1,7 @@
 {
   "name": "angular-speech-to-text",
   "author": "Diego Santiago - Vayapedal",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "license": "MIT",
   "peerDependencies": {
     "@angular/common": "13.1.0",

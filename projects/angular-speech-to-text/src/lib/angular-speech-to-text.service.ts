@@ -49,9 +49,9 @@ export class SpeechToText {
         const msg = 'Speech-to-text plugin not available';
         reject(msg);
       }
-      cordova.plugins.SpeechToText.start((res: any) => {
-        this.resultSubject.next(res);
-        resolve(true);
+      cordova.plugins.SpeechToText.start((value: any) => {
+        this.resultSubject.next(value);
+        resolve(value);
       }, (err: any) => {
         reject(err);
       });
