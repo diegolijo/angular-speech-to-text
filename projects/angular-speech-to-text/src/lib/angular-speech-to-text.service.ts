@@ -25,8 +25,25 @@ export class SpeechToText {
     private ngZone: NgZone
   ) { }
 
+  public download(locale: string): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      if (!this.platform.is('cordova')) {
+        const msg = 'Speech-to-text plugin not available';
+        reject(msg);
+      }
+      if (this.platform.is('cordova')) {
+        cordova.plugins.SpeechToText.download((value: any) => {
+          resolve(value);
+        }, (err: any) => {
+          reject(err);
+        },
+          locale);
+      }
+    });
+  }
+
   // TODO implementar otros idiomas
-  public enableSpeech(idioma?: string): Promise<any> {
+  public enableSpeech(locale?: string): Promise<any> {
     return new Promise((resolve: any, reject: any) => {
       if (!this.platform.is('cordova')) {
         const msg = 'Speech-to-text plugin not available';
@@ -38,7 +55,7 @@ export class SpeechToText {
         }, (err: any) => {
           reject(err);
         },
-          idioma);
+          locale);
       }
     });
   }
