@@ -42,7 +42,38 @@ export class SpeechToText {
     });
   }
 
-  // TODO implementar otros idiomas
+  public getDownloadedLanguages(): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      if (!this.platform.is('cordova')) {
+        const msg = 'Speech-to-text plugin not available';
+        reject(msg);
+      }
+      if (this.platform.is('cordova')) {
+        cordova.plugins.SpeechToText.getDownloadedLanguages((value: any) => {
+          resolve(value);
+        }, (err: any) => {
+          reject(err);
+        });
+      }
+    });
+  }
+
+  public getAvailableLanguages(): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      if (!this.platform.is('cordova')) {
+        const msg = 'Speech-to-text plugin not available';
+        reject(msg);
+      }
+      if (this.platform.is('cordova')) {
+        cordova.plugins.SpeechToText.getAvailableLanguages((value: any) => {
+          resolve(value);
+        }, (err: any) => {
+          reject(err);
+        });
+      }
+    });
+  }
+
   public enableSpeech(locale?: string): Promise<any> {
     return new Promise((resolve: any, reject: any) => {
       if (!this.platform.is('cordova')) {
