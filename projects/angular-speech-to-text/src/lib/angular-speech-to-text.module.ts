@@ -4,13 +4,8 @@ import { AngularSpeechToTextComponent } from './angular-speech-to-text.component
 
 
 @NgModule({
-  declarations: [
-    AngularSpeechToTextComponent
-  ],
-  imports: [
-  ],
-  exports: [
-    AngularSpeechToTextComponent
-  ]
+  declarations: [AngularSpeechToTextComponent],
+  imports: [],
+  exports: [AngularSpeechToTextComponent]
 })
 export class AngularSpeechToTextModule { }

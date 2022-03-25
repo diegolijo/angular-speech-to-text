@@ -182,4 +182,21 @@ export class SpeechToText {
   }
 
 
+  public nativeCall(param: string): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      if (!this.platform.is('cordova')) {
+        const msg = 'Speech-to-text plugin not available';
+        reject(msg);
+      }
+      if (this.platform.is('cordova')) {
+        cordova.plugins.SpeechToText.nativeCall((value: any) => {
+          resolve(value);
+        }, (err: any) => {
+          reject(err);
+        },
+          param);
+      }
+    });
+  }
+
 }
