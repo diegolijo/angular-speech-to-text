@@ -1,13 +1,14 @@
 {
   "name": "my-project",
-  "version": "1.0.8",
+  "version": "1.0.15",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "build:lib": "ng-packagr -p projects/angular-speech-to-text/ng-package.json"
+    "build:lib": "ng-packagr -p projects/angular-speech-to-text/ng-package.json",
+    "publish": "npm run build:lib && cd dist/angular-speech-to-text && npm publish && cd.. && cd.."
   },
   "private": true,
   "dependencies": {

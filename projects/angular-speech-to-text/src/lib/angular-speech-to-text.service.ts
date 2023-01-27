@@ -20,6 +20,9 @@ export class SpeechToText {
   private resultSubject = new Subject<IResultEvent>();
   private subscribes: any = {};
 
+  private downloadSubject = new Subject<any>();
+  private downloadSubscriber: any = {};
+
   constructor(
     private platform: Platform,
     private ngZone: NgZone
@@ -33,11 +36,11 @@ export class SpeechToText {
       }
       if (this.platform.is('cordova')) {
         cordova.plugins.SpeechToText.download((value: any) => {
+          this.downloadSubject.next(value);
           resolve(value);
         }, (err: any) => {
           reject(err);
-        },
-          locale);
+        }, locale);
       }
     });
   }
@@ -181,20 +184,36 @@ export class SpeechToText {
     };
   }
 
+  public subscrbeToDownload(id: string, callbackFunction: any, errorFunction: any): Promise<any> {
+    return new Promise((resolve) => {
+      try {
 
-  public nativeCall(param: string): Promise<any> {
-    return new Promise((resolve: any, reject: any) => {
-      if (!this.platform.is('cordova')) {
-        const msg = 'Speech-to-text plugin not available';
-        reject(msg);
+        if (!this.downloadSubscriber[id]) {
+          this.downloadSubscriber[id] = this.downloadSubject.asObservable().subscribe((value) => {
+            this.ngZone.run(() => {
+              callbackFunction(value);
+            });
+          });
+          resolve('subscribe ok');
+        } else {
+          resolve('ya existe la funcion callback');
+        }
+      } catch (err) {
+        errorFunction(err);
       }
-      if (this.platform.is('cordova')) {
-        cordova.plugins.SpeechToText.nativeCall((value: any) => {
-          resolve(value);
-        }, (err: any) => {
-          reject(err);
-        },
-          param);
+    });
+  }
+
+  public unsubscribeToDownload(id: string, callbackFunction: any): Promise<any> {
+    return new Promise((resolve) => {
+      try {
+        if (this.downloadSubscriber[id]) {
+          this.downloadSubscriber[id].unsubscribe();
+          delete this.downloadSubscriber[id];
+        };
+        resolve('unsubscribe ok');
+      } catch (err) {
+        resolve('no existe  la funcion callback');
       }
     });
   }

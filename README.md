@@ -2,11 +2,6 @@
 Servicio Angular para manejar el plugin Cordova: `vosk-speech-to-text`
 
 
-# generar la librería
-- ng generate library nombre-librería  
-  genera -> ./projects/nombre-librería
-
-
 # instalar herramienta transpilación de la librería
 - npm i ng-packagr
 
@@ -18,3 +13,7 @@ uso:
 
 
   https://medium.com/@insomniocode/creando-una-librer%C3%ADa-angular-y-subi%C3%A9ndola-a-npm-f78d212e8e71
+
+  # generar la librería
+- ng generate library nombre-librería  
+  genera -> ./projects/nombre-librería
