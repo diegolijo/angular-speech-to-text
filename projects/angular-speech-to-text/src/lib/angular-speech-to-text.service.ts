@@ -245,8 +245,8 @@ export class SpeechToText {
           });
         });
         this.subscribes[id] = {
-          subscriber: subscriber,
           key: id,
+          subscriber: subscriber,
           subscriberSp: subscriberSp
         };
       }
@@ -255,14 +255,20 @@ export class SpeechToText {
     }
   }
 
-  public unsubscribeToSpeech(id: string): void {
-    if (this.subscribes[id] && !this.subscribes[id].subscriber.closed) {
-      this.subscribes[id].subscriber.unsubscribe();
-    };
-    if (this.subscribes[id] && !this.subscribes[id].subscriberSP.closed) {
-      this.subscribes[id].subscriberSp.unsubscribe();
-      delete this.subscribes[id];
-    };
+  public unsubscribeToSpeech(id: string, errorFunction: any): void {
+    try {
+      if (this.subscribes[id] && this.subscribes[id].subscriber && !this.subscribes[id].subscriber.closed) {
+        this.subscribes[id].subscriber.unsubscribe();
+      };
+      if (this.subscribes[id] && this.subscribes[id].subscriberSp && !this.subscribes[id].subscriberSp.closed) {
+        this.subscribes[id].subscriberSp.unsubscribe();
+      };
+      if (this.subscribes[id]) {
+        delete this.subscribes[id];
+      }
+    } catch (err) {
+      errorFunction(err);
+    }
   }
 
   public subscrbeToDownload(id: string, callbackFunction: any, errorFunction: any): Promise<any> {
