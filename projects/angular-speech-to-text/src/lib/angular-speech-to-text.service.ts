@@ -17,12 +17,14 @@ export interface ISubscriber {
 @Injectable()
 export class SpeechToText {
 
-  private resultSubject = new Subject<IResultEvent>();
-  private subscribes: any = {};
+  private recognizerSubject = new Subject<IResultEvent>();
+  private recognizerSubscribes: any = {};
 
-  private downloadSubject = new Subject<any>();
   private downloadSubscriber: any = {};
-  private speechSubject = new Subject<any>();
+  private downloadSubject = new Subject<any>();
+
+  private syntSubscribes: any = {};
+  private synthSubject = new Subject<any>();
 
   constructor(
     private platform: Platform,
@@ -78,7 +80,7 @@ export class SpeechToText {
     });
   }
 
-  public enableSpeech(locale?: string): Promise<any> {
+  public enableRecognizer(locale?: string): Promise<any> {
     return new Promise((resolve: any, reject: any) => {
       if (!this.platform.is('cordova')) {
         const msg = 'Speech-to-text plugin not available';
@@ -95,14 +97,14 @@ export class SpeechToText {
     });
   }
 
-  public startSpeech(): Promise<any> {
+  public startRecognizer(): Promise<any> {
     return new Promise((resolve: any, reject: any) => {
       if (!this.platform.is('cordova')) {
         const msg = 'Speech-to-text plugin not available';
         reject(msg);
       }
       cordova.plugins.SpeechToText.start((value: any) => {
-        this.resultSubject.next(value);
+        this.recognizerSubject.next(value);
         resolve(value);
       }, (err: any) => {
         reject(err);
@@ -110,7 +112,7 @@ export class SpeechToText {
     });
   }
 
-  public stopSpeech(): Promise<any> {
+  public stopRecognizer(): Promise<any> {
     return new Promise((resolve: any, reject: any) => {
       if (!this.platform.is('cordova')) {
         const msg = 'Speech-to-text plugin not available';
@@ -158,7 +160,7 @@ export class SpeechToText {
     });
   }
 
-  public speechText(text: string): Promise<any> {
+  public synthText(text: string, flush?: boolean): Promise<any> {
     return new Promise((resolve: any, reject: any) => {
       if (!this.platform.is('cordova')) {
         const msg = 'Speech-to-text plugin not available';
@@ -166,18 +168,17 @@ export class SpeechToText {
       }
       if (this.platform.is('cordova')) {
         cordova.plugins.SpeechToText.speechText((value: any) => {
-          this.speechSubject.next(value);
+          this.synthSubject.next(value);
           resolve(value);
         }, (err: any) => {
           reject(err);
         },
-          text);
+          text, flush);
       }
     });
   }
 
-
-  public getSpeechVoices(): Promise<any> {
+  public getSynthVoices(): Promise<any> {
     return new Promise((resolve: any, reject: any) => {
       if (!this.platform.is('cordova')) {
         const msg = 'Speech-to-text plugin not available';
@@ -193,7 +194,7 @@ export class SpeechToText {
     });
   }
 
-  public setSpeechVolume(vol: number): Promise<any> {
+  public setSynthVolume(vol: number): Promise<any> {
     return new Promise((resolve: any, reject: any) => {
       if (!this.platform.is('cordova')) {
         const msg = 'Speech-to-text plugin not available';
@@ -210,7 +211,7 @@ export class SpeechToText {
     });
   }
 
-  public setSpeechVoice(name: string): Promise<any> {
+  public setSynthVoice(name: string): Promise<any> {
     return new Promise((resolve: any, reject: any) => {
       if (!this.platform.is('cordova')) {
         const msg = 'Speech-to-text plugin not available';
@@ -228,26 +229,18 @@ export class SpeechToText {
   }
 
   //****************************** EVENTS *****************************/
-  public subscrbeToSpeech(id: string, callbackFunction: any, errorFunction: any, callbackSpeech: any): void {
+  public subscrbeToRecognizer(id: string, callbackFunction: any, errorFunction: any): void {
     try {
-      const element = this.subscribes[id];
-      let subscriber: any;
-      let subscriberSp: any;
-      if (!element || (element.key === id && element.subscriber.closed)) {
-        subscriber = this.resultSubject.asObservable().subscribe((value) => {
+      const element = this.recognizerSubscribes[id];
+      if (!element || (element.subscriber && element.subscriber.closed)) {
+        const subscriber = this.recognizerSubject.asObservable().subscribe((value) => {
           this.ngZone.run(() => {
             callbackFunction(value);
           });
         });
-        subscriberSp = this.speechSubject.asObservable().subscribe((value) => {
-          this.ngZone.run(() => {
-            callbackSpeech(value);
-          });
-        });
-        this.subscribes[id] = {
+        this.recognizerSubscribes[id] = {
           key: id,
-          subscriber: subscriber,
-          subscriberSp: subscriberSp
+          subscriber: subscriber
         };
       }
     } catch (err) {
@@ -255,16 +248,47 @@ export class SpeechToText {
     }
   }
 
-  public unsubscribeToSpeech(id: string, errorFunction: any): void {
+  public unsubscribeToRecognizer(id: string, errorFunction: any): void {
     try {
-      if (this.subscribes[id] && this.subscribes[id].subscriber && !this.subscribes[id].subscriber.closed) {
-        this.subscribes[id].subscriber.unsubscribe();
+      const element = this.recognizerSubscribes[id];
+      if (element && element.subscriber && !element.subscriber.closed) {
+        element.subscriber.unsubscribe();
       };
-      if (this.subscribes[id] && this.subscribes[id].subscriberSp && !this.subscribes[id].subscriberSp.closed) {
-        this.subscribes[id].subscriberSp.unsubscribe();
+      if (element) {
+        delete this.recognizerSubscribes[id];
+      }
+    } catch (err) {
+      errorFunction(err);
+    }
+  }
+
+  public subscrbeToSyntesizer(id: string, callbackFunction: any, errorFunction: any): void {
+    try {
+      const element = this.syntSubscribes[id];
+      if (!element || (element.subscriber && element.subscriber.closed)) {
+        const subscriber = this.synthSubject.asObservable().subscribe((value) => {
+          this.ngZone.run(() => {
+            callbackFunction(value);
+          });
+        });
+        this.syntSubscribes[id] = {
+          key: id,
+          subscriber: subscriber
+        };
+      }
+    } catch (err) {
+      errorFunction(err);
+    }
+  }
+
+  public unsubscribeToSyntesizer(id: string, errorFunction: any): void {
+    try {
+      const element = this.syntSubscribes[id];
+      if (element && element.subscriber && !element.subscriber.closed) {
+        this.syntSubscribes[id].subscriber.unsubscribe();
       };
-      if (this.subscribes[id]) {
-        delete this.subscribes[id];
+      if (this.syntSubscribes[id]) {
+        delete this.syntSubscribes[id];
       }
     } catch (err) {
       errorFunction(err);
@@ -274,7 +298,6 @@ export class SpeechToText {
   public subscrbeToDownload(id: string, callbackFunction: any, errorFunction: any): Promise<any> {
     return new Promise((resolve) => {
       try {
-
         if (!this.downloadSubscriber[id]) {
           this.downloadSubscriber[id] = this.downloadSubject.asObservable().subscribe((value) => {
             this.ngZone.run(() => {
