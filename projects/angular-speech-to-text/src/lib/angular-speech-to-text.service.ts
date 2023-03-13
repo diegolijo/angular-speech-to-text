@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable object-shorthand */
 /* eslint-disable @typescript-eslint/naming-convention */
 import { Injectable, NgZone } from '@angular/core';
 import { Platform } from '@ionic/angular';
+import { rejects } from 'assert';
 import { Subject } from 'rxjs';
 
 declare const cordova: any;
@@ -248,18 +250,21 @@ export class SpeechToText {
     }
   }
 
-  public unsubscribeToRecognizer(id: string, errorFunction: any): void {
-    try {
-      const element = this.recognizerSubscribes[id];
-      if (element && element.subscriber && !element.subscriber.closed) {
-        element.subscriber.unsubscribe();
-      };
-      if (element) {
-        delete this.recognizerSubscribes[id];
+  public unsubscribeToRecognizer(id: string): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      try {
+        const element = this.recognizerSubscribes[id];
+        if (element && element.subscriber && !element.subscriber.closed) {
+          element.subscriber.unsubscribe();
+        };
+        if (element) {
+          delete this.recognizerSubscribes[id];
+          resolve('subscribe ok');
+        }
+      } catch (err) {
+        reject(err);
       }
-    } catch (err) {
-      errorFunction(err);
-    }
+    });
   }
 
   public subscrbeToSyntesizer(id: string, callbackFunction: any, errorFunction: any): void {
@@ -281,18 +286,21 @@ export class SpeechToText {
     }
   }
 
-  public unsubscribeToSyntesizer(id: string, errorFunction: any): void {
-    try {
-      const element = this.syntSubscribes[id];
-      if (element && element.subscriber && !element.subscriber.closed) {
-        this.syntSubscribes[id].subscriber.unsubscribe();
-      };
-      if (this.syntSubscribes[id]) {
-        delete this.syntSubscribes[id];
+  public unsubscribeToSyntesizer(id: string): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      try {
+        const element = this.syntSubscribes[id];
+        if (element && element.subscriber && !element.subscriber.closed) {
+          this.syntSubscribes[id].subscriber.unsubscribe();
+        };
+        if (this.syntSubscribes[id]) {
+          delete this.syntSubscribes[id];
+        }
+        resolve('subscribe ok');
+      } catch (err) {
+        reject(err);
       }
-    } catch (err) {
-      errorFunction(err);
-    }
+    });
   }
 
   public subscrbeToDownload(id: string, callbackFunction: any, errorFunction: any): Promise<any> {
@@ -306,7 +314,7 @@ export class SpeechToText {
           });
           resolve('subscribe ok');
         } else {
-          resolve('ya existe la funcion callback');
+          resolve('parameter id already in use');
         }
       } catch (err) {
         errorFunction(err);
@@ -314,16 +322,16 @@ export class SpeechToText {
     });
   }
 
-  public unsubscribeToDownload(id: string, callbackFunction: any): Promise<any> {
-    return new Promise((resolve) => {
+  public unsubscribeToDownload(id: string): Promise<any> {
+    return new Promise((resolve, reject) => {
       try {
         if (this.downloadSubscriber[id]) {
-          this.downloadSubscriber[id].unsubscribe();
+          !this.downloadSubscriber[id] || this.downloadSubscriber[id].unsubscribe();
           delete this.downloadSubscriber[id];
         };
-        resolve('unsubscribe ok');
+        resolve('subscribe ok');
       } catch (err) {
-        resolve('no existe  la funcion callback');
+        reject(err);
       }
     });
   }
