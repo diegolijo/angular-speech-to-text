@@ -1,12 +1,12 @@
 {
   "name": "angular-speech-to-text",
   "author": "Diego Santiago - Vayapedal",
-  "version": "1.0.21",
+  "version": "1.1.1",
   "license": "MIT",
   "peerDependencies": {
-    "@angular/common": "13.x || 14.x || 15.x",
-    "@angular/core": "13.x || 14.x || 15.x",
-    "@ionic/angular": "6.x || 5.x",
+    "@angular/common": "13.x || 14.x || 15.x || 16.x || 17.x",
+    "@angular/core": "13.x || 14.x || 15.x || 16.x || 17.x",
+    "@ionic/angular": "6.x || 5.x || 7.x",
     "rxjs": "^7.4.0",
     "typescript": "^4.5.5"
   },

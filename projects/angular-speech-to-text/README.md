@@ -1,5 +1,5 @@
 # AngularSpeechToText
-Servicio Angular para manejar el plugin Cordova vosk-speech-to-text
+Servicio Angular para manejar el plugin Cordova cordova-plugin-offline-speech
 ## install
-- cordova plugins add vosk-speech-to-text
+- cordova plugins add cordova-plugin-offline-speech
 - npm i angular-speech-to-text

@@ -230,6 +230,23 @@ export class SpeechToText {
     });
   }
 
+  public playSound(path: string, volume: number): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      if (!this.platform.is('cordova')) {
+        const msg = 'Speech-to-text plugin not available';
+        reject(msg);
+      }
+      if (this.platform.is('cordova')) {
+        cordova.plugins.SpeechToText.playSound((value: any) => {
+          resolve(value);
+        }, (err: any) => {
+          reject(err);
+        },
+        path, volume);
+      }
+    });
+  }
+
   //****************************** EVENTS *****************************/
   public subscrbeToRecognizer(id: string, callbackFunction: any, errorFunction: any): void {
     try {
