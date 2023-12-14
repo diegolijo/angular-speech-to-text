@@ -27,6 +27,8 @@ export class SpeechToText {
 
   private syntSubscribes: any = {};
   private synthSubject = new Subject<any>();
+  private nativeCallSubscribes: any = {};
+  private nativeCallSubject = new Subject<any>();
 
   constructor(
     private platform: Platform,
@@ -242,7 +244,38 @@ export class SpeechToText {
         }, (err: any) => {
           reject(err);
         },
-        path, volume);
+          path, volume);
+      }
+    });
+  }
+
+  public initAudioCapture(): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      if (!this.platform.is('cordova')) {
+        const msg = 'Speech-to-text plugin not available';
+        reject(msg);
+      }
+      cordova.plugins.SpeechToText.initAudioCapture((value: any) => {
+        this.recognizerSubject.next(value);
+        resolve(value);
+      }, (err: any) => {
+        reject(err);
+      });
+    });
+  }
+
+  public stopAudioCapture(): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      if (!this.platform.is('cordova')) {
+        const msg = 'Speech-to-text plugin not available';
+        reject(msg);
+      }
+      if (this.platform.is('cordova')) {
+        cordova.plugins.SpeechToText.stopAudioCapture((value: any) => {
+          resolve(value);
+        }, (err: any) => {
+          reject(err);
+        });
       }
     });
   }
@@ -252,7 +285,7 @@ export class SpeechToText {
     try {
       const element = this.recognizerSubscribes[id];
       if (!element || (element.subscriber && element.subscriber.closed)) {
-        const subscriber = this.recognizerSubject.asObservable().subscribe((value) => {
+        const subscriber = this.recognizerSubject.asObservable().subscribe((value: any) => {
           this.ngZone.run(() => {
             callbackFunction(value);
           });
@@ -288,7 +321,7 @@ export class SpeechToText {
     try {
       const element = this.syntSubscribes[id];
       if (!element || (element.subscriber && element.subscriber.closed)) {
-        const subscriber = this.synthSubject.asObservable().subscribe((value) => {
+        const subscriber = this.synthSubject.asObservable().subscribe((value: any) => {
           this.ngZone.run(() => {
             callbackFunction(value);
           });
@@ -324,7 +357,7 @@ export class SpeechToText {
     return new Promise((resolve) => {
       try {
         if (!this.downloadSubscriber[id]) {
-          this.downloadSubscriber[id] = this.downloadSubject.asObservable().subscribe((value) => {
+          this.downloadSubscriber[id] = this.downloadSubject.asObservable().subscribe((value: any) => {
             this.ngZone.run(() => {
               callbackFunction(value);
             });
@@ -347,6 +380,43 @@ export class SpeechToText {
           delete this.downloadSubscriber[id];
         };
         resolve('subscribe ok');
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+
+  public subscrbeToNativeCall(id: string, callbackFunction: any, errorFunction: any): void {
+    try {
+      const element = this.nativeCallSubscribes[id];
+      if (!element || (element.subscriber && element.subscriber.closed)) {
+        const subscriber = this.nativeCallSubject.asObservable().subscribe((value: any) => {
+          this.ngZone.run(() => {
+            callbackFunction(value);
+          });
+        });
+        this.nativeCallSubscribes[id] = {
+          key: id,
+          subscriber: subscriber
+        };
+      }
+    } catch (err) {
+      errorFunction(err);
+    }
+  }
+
+  public unsubscribeToNativeCall(id: string): Promise<any> {
+    return new Promise((resolve: any, reject: any) => {
+      try {
+        const element = this.nativeCallSubscribes[id];
+        if (element && element.subscriber && !element.subscriber.closed) {
+          element.subscriber.unsubscribe();
+        };
+        if (element) {
+          delete this.nativeCallSubscribes[id];
+          resolve('subscribe ok');
+        }
       } catch (err) {
         reject(err);
       }
